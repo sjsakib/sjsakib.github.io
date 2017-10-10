@@ -1,18 +1,18 @@
 # Site settings
-title: Jekyll-Uno
-description: 'Jekyll-Uno - a minimal, responsive theme for Jekyll'
+title: S.j. Sakib
+description: 'Yet another Sapiens'
 url: 'http://sjsakib.github.io'
 baseurl: ''
 # google_analytics: 'UA-XXXXXX-X'
 # disqus_shortname: 'your-disqus-name'
 
 author:
-  name: 'Josh Gerdes'
-  email: josh@joshgerdes.com
-  twitter_username: joshgerdes
-  facebook_username: joshgerdes
-  github_username:  joshgerdes
-  linkedin_username:  joshgerdes
+  name: 'S.j. Sakib'
+  email: sjsakib.bd@gmail.com
+  twitter_username: sjsakib
+  facebook_username: sjsakib
+  github_username:  sjsakib
+  # linkedin_username:  
 
 defaults:
   -
