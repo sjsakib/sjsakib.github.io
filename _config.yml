@@ -3,6 +3,8 @@ title: S.j. Sakib
 description: 'Yet another Sapiens'
 url: 'http://sjsakib.github.io'
 baseurl: ''
+TZ: Asia/Dhaka
+future: yes
 # google_analytics: 'UA-XXXXXX-X'
 # disqus_shortname: 'your-disqus-name'
 
@@ -39,5 +41,8 @@ kramdown:
   # do not replace newlines by <br>s
   hard_wrap: false
 
-gems: ['jekyll-paginate']
+plugins:
+  - jemoji
+  - jekyll-paginate
+
 exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']

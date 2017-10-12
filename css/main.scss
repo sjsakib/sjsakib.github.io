@@ -57,3 +57,28 @@ pre.highlight code,
   border: 3px solid #fff;
   border-radius:100%;
 }
+
+
+/* my custom css */
+.page-navigation {
+  font-size: 14px;
+  display: block;
+  width: auto;
+  overflow: hidden;
+  line-height: 1.5em;
+}
+
+.page-navigation a {
+  display: block;
+  width: 50%;
+  margin: 1em 0;
+}
+
+.page-navigation .next {
+  float: right;
+  text-align: right;
+}
+.page-navigation .prev {
+  float: left;
+  text-align: left
+}
