@@ -8,7 +8,7 @@ fb: yes
 shownext: yes
 ---
 
-I've solved a number of problems in LightOJ. But never felt the necessity of saving the codes. I thought they are always available there, I can grab them anytime. But now that I discovered showing off codes in github is a super cool thing, what do I do? Go to Light OJ and copy and paste all the AC codes? :astonished:
+I've solved a number of problems in LightOJ. But never felt the necessity of saving the codes. I thought they are always available there, I can grab them anytime. But now that I've discovered showing off codes in github is a super cool thing, what do I do? Go to Light OJ and copy and paste all the AC codes? :astonished:
 
 Luckily I know a little python and there is a great framework called scrapy to scrap things using python. I never used scrapy though. So let's do this and learn how to use scrapy.
 
@@ -40,7 +40,7 @@ It's spiders we need to write to scrape LightOJ for us. We'll create our spider 
 $ cd lightoj
 $ scrapy genspider loj lightoj.com
 ```
-It'll create a spider with name `loj` for the site  `lightoj.com` in the spiders folder. This is how it looks now
+It'll create a spider with name `loj` for the site  `lightoj.com` in the `spiders` folder. This is how it looks now
 ```python
 # -*- coding: utf-8 -*-
 import scrapy
@@ -70,7 +70,7 @@ Now we know the fields are `myuserid` and `mypassword`. Now we can submit them. 
 USER = 'sjsakib.bd@gmail.com'
 PASS = os.environ['LOJPASS']
 ```
-I've replaced password with environment variable here. It's not necessary here. Plain password could be put.
+I've replaced password with environment variable here. It's not necessary. Plain password could be put.
 
 Now let's update the `parse` method
 ```python
@@ -82,12 +82,7 @@ def parse(self, response):
         callback=self.after_login
     )
 ```
-Here `self.after_login` is a method of our spider where we'll define what to do after login. If login fails, LightOJ will redirect us again to the `login_main.php` page. LightOJ redirects in a strange way. It returns a script like
-```js
-<script>location.href='login_main.php'</script>
-```
-
-So if we find `login_main.php` in the response text, it will mean login failed and our spider have to stop there. Otherwise, we can assume that login is successful and we can continue our scraping. Our next page have to be the `volume_usersubmissions.php` page. We'll add link of this page in our spider class to use in the method later. 
+Here `self.after_login` is a method of our spider where we'll define what to do after login. If login fails, LightOJ will redirect us again to the `login_main.php` page. LightOJ redirects in a strange way. It returns a script like `<script>location.href='login_main.php'</script>`. So if we find `login_main.php` in the response text, it will mean login failed and our spider have to stop there. Otherwise, we can assume that login was successful and we can continue our scraping. Our next page have to be the `volume_usersubmissions.php` page. We'll add link of this page in our spider class to use later. 
 ```python
 class LojSpider(scrapy.Spider):
     #....
@@ -105,7 +100,7 @@ def after_login(self, response):
     yield scrapy.Request(self.my_sub_url, callback=self.my_sub)
 ```
 
-This page doesn't contain all the submissions either. We'll have to submit another form for all the submissions. The password field name here is `user_password`. So let's submit our password once again in the `my_sub` method
+This page doesn't contain all the submissions either. We'll have to submit another form for all the submissions. The password field name in this page is `user_password`. So let's submit our password once again in the `my_sub` method
 ```python
 def my_sub(self, response):
     return scrapy.FormRequest.from_response(
@@ -115,11 +110,11 @@ def my_sub(self, response):
     )
 ```
 
-In the response page we'll have all the submissions. We'll define the method `parse_all_sub` to process them. All the submissions in that page is in a table with id `mytable3`. In every row there's link to each submission in a `<th>` tag. We'll grab them all with `response.css` and see if the verdict is `Accepted` then follow them to get our submission.
+In the response page we'll have all the submissions. We'll define the method `parse_all_sub` to process them. All the submissions in that page is in a table with id `mytable3`. In every row there's link to each submission in a `<th>` tag. The verdict is in a `<div>` tag in the last cell. We'll use `response.css` to select them and see if the verdict is `Accepted`. Then we'll follow the submission link to get our submission.
 ```python
 def parse_allsub(self, response):
     trs = response.css('#mytable3 tr')  # Getting all the rows
-    for tr in trs[1:]:  # skipping the first row
+    for tr in trs[1:]:  # skipping header row
         ver = tr.css('div::text').extract_first().strip()  # getting verdict text
         a = tr.css('a')[0]  # link to the submission
         if ver == 'Accepted':
@@ -133,7 +128,7 @@ Now we've got a problem. The default html parser of scrapy treats our code as ht
 code = response.css('textarea::text').extract_first()
 print(code) 
 ```
-We get only `#include `. Where's the rest of code? What's happening here? Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy.
+We get only `#include `. Where's the rest of the code? What's happening here? Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy.
 
 We'll use `BeautifulSoup` instead. (Which I've used earlier) It's easy, we'll import `BeautifulSoup` and create our soup with `response.text`. Then we can extract all our informations correctly.
 ```python
@@ -209,4 +204,4 @@ If we open the `data.josn` file, we'll see that our spider has done its work :su
 {"tags": ["Beginners Problems", "Number Theory"], "pid": "1045"}
 ....
 ```
-It has saved the codes along with other informations and also which problems have what tags. It's cool, no? But we can't upload this to github and show all our coolness. They need to be saved in organized folders. We'll do so in the next part.
+It has saved the codes along with other informations and also which problems have what tags. It's cool, no? But we can't upload these to github and show all our coolness. They need to be saved in organized folders. We'll do so in the next part.
