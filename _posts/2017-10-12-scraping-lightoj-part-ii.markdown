@@ -21,7 +21,7 @@ What is the number 300? Well, when we have multiple pipelines, the pipeline with
 
 Now let's open the `pipelines.py` file and add our stuffs in there. First we have to implement a method `process_item`. Whenever our spider yields a item, the item will pass to this method so that we can process it as we like.
 
-If it's a submission information we'll append it to the `data.json` file. And if it is a tag information we'll add it to a `dict` property of our pipeline to use later when saving files. We'll also add a `open_spider` method to add that dict property to our spider
+If the item is a submission information we'll append it to the `data.json` file. And if it is a tag information we'll add it to a `dict` property of our pipeline to use later when saving files. We'll also add a `open_spider` method to add that dict property to our spider
 ```python
 def open_spider(self, spider):
     self.tags = {}
@@ -96,9 +96,9 @@ def save_to_folder(self, tag, lang, name, code, subid, spider):
     os.chdir('..')
 
 ```
-Now our spider should save all the codes properly. But before finishing, we'll do one more thing. What happens when we run our spider again? It'll scrape all the submissions again. Instead we could make it scrape only the new submissions. To do that, we have to save to a file which submissions have been scraped.
+Now our spider should save all the codes properly. But before finishing, we'll do one more thing. What happens when we run our spider again? It'll scrape all the submissions again. Instead we could make it scrape only the new submissions. To do that, we have to save to a file which submissions have been already scraped.
 
-We'll add a list property `done` in our spider when it's created. We'll add the `subid` when we scrape a submission. And when our spider closes we'll save them to a file. We'll have to add a `__init__` method to our spider.
+We'll add a list property `done` in our spider when it's created. We'll add the `subid` to this when we scrape a submission. And when our spider closes we'll save them to a file. We'll have to add a `__init__` method to our spider.
 ```python
 def __init__(self, *args, **kwargs):
     super(LojSpider, self).__init__(*args, **kwargs)
@@ -116,20 +116,20 @@ def closed(self, reason):
         json.dump(self.done, f)
 ```
 
-We have to add this to `parse_all_sub` method of our spider
+We have to add this to `parse_all_sub` method of our spider, so that we our spider doesn't scrape already scraped submissions
 ```python
 subid = a.css('::text').extract_first().strip()
 if subid in self.done:
     continue
 ```
 
-We already added  `spider.done.append(subid)` in `save_to_folder` method of our pipeline to add the subid to to `done` property of our spider after saving the code successfully.
+We already added  `spider.done.append(subid)` in `save_to_folder` method of our pipeline. It adds the `subid` to to `done` property of our spider after saving the code successfully.
 
-And now we're done. Let's run our spider
+And now we're done. Let's run our spider. This time we don't need the `-o data.json` option, as we are saving the data manually. 
 ```
 $ scrapy crawl loj
 ```
-After the process finises, head to the `codes` folder and check out the codes! Now these can be uploaded and showed off :sunglasses:
+After the process finises, head to the `codes` folder and check out the codes! Now these can be uploaded and showed off :stuck_out_tongue_winking_eye:
 
 I got mine like this...
 ```
@@ -260,13 +260,15 @@ I got mine like this...
 └── Weighted Bipartite Matching, Hungarian Algorithm
     └── LightOJ 1198 - Karate Competition.cpp
 ```
+(This kind of cool tree can be generated using [tree.](https://linux.die.net/man/1/tree))
 
 The full code along with my LightOJ solutions are available [here.](https://github.com/sjsakib/lightoj-solutions) If you want to use it
-
 1. Install `scrapy` and `bs4`
 2. Delete the `codes` folder
 3. Delete everything from the `done.json` file
 4. Add your userid and password in the `settings.py` file
 5. Run the spider
+
+Only tested on linux, but is supposed to work on windows as well.
 
 Thanks for reading. Any kind of correction, suggestion, advice will be appreciated. 

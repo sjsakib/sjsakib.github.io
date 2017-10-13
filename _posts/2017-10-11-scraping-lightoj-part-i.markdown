@@ -82,7 +82,7 @@ def parse(self, response):
         callback=self.after_login
     )
 ```
-Here `self.after_login` is a method of our spider where we'll define what to do after login. If login fails, LightOJ will redirect us again to the `login_main.php` page. LightOJ redirects in a strange way. It returns a script like `<script>location.href='login_main.php'</script>`. So if we find `login_main.php` in the response text, it will mean login failed and our spider have to stop there. Otherwise, we can assume that login was successful and we can continue our scraping. Our next page have to be the `volume_usersubmissions.php` page. We'll add link of this page in our spider class to use later. 
+Here `self.after_login` is a method of our spider where we'll define what to do after login. If login fails, LightOJ will redirect us again to the `login_main.php` page. LightOJ redirects in a strange way. It returns a script like ```<script>location.href='login_main.php'</script>```. So if we find `login_main.php` in the response text, it will mean login failed and our spider have to stop there. Otherwise, we can assume that login was successful and we can continue our scraping. Our next page have to be the `volume_usersubmissions.php` page. We'll add link of this page in our spider class to use later. 
 ```python
 class LojSpider(scrapy.Spider):
     #....
@@ -128,9 +128,10 @@ Now we've got a problem. The default html parser of scrapy treats our code as ht
 code = response.css('textarea::text').extract_first()
 print(code) 
 ```
-We get only `#include `. Where's the rest of the code? What's happening here? Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy.
+We get only `#include `. Where's the rest of the code? What's happening here? :worried: Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy :neutral_face:
 
 We'll use `BeautifulSoup` instead. (Which I've used earlier) It's easy, we'll import `BeautifulSoup` and create our soup with `response.text`. Then we can extract all our informations correctly.
+
 ```python
 def parse_sub(self, response):
     soup = BeautifulSoup(response.text, 'html5lib')
@@ -196,7 +197,7 @@ We've done a lot of coding. Time  to unleash :fire: our spider and see how it ro
 $ scrapy crawl loj -o data.json
 ```
 
-If we open the `data.josn` file, we'll see that our spider has done its work :sunglasses:
+If we open the `data.josn` file, we'll see that our spider has done its work :grinning:
 ```json
 ....
 {"code": "import java.io.BufferedReader;\nimport ..... System.out.printf(\"Case %d: %d\\n\",i+1,s);\n\t\t}\n\t}\n}\n", "cpu": "0.456", "mem": "29864", "subid": "524108", "date": "2015-05-30 05:07:18", "name": "1015 - Brush (I)", "lang": "JAVA", "pid": "1015"}

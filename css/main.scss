@@ -12,8 +12,12 @@ pre.highlight,
 }
 
 pre.highlight code,
-.highlight pre code {
-  white-space: pre-wrap;
+.highlight pre code {  //modified
+  display: block;
+  white-space: pre;
+  overflow-x: auto;
+  word-wrap: normal;
+
 }
 
 .btn,
