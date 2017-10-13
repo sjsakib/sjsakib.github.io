@@ -1,6 +1,6 @@
 ---
 title:  "Scraping Light OJ: Part I"
-date:   2017-10-11 22:34:49
+date:   2017-10-11
 categories: [small-hacks]
 tags: [scraping]
 
@@ -8,11 +8,11 @@ fb: yes
 shownext: yes
 ---
 
-I've solved a number of problems in LightOJ. But never felt the necessity of saving the codes. I thought they are always available there, I can grab them anytime. But now that I've discovered showing off codes in github is a super cool thing, what do I do? Go to Light OJ and copy and paste all the AC codes? :astonished:
+I've solved a number of problems in LightOJ. But never felt the necessity of saving the codes. I thought they are always available there, I can grab them anytime. But now that I've discovered showing off codes in github is a super cool thing, what do I do? Go to LightOJ and copy and paste all the AC codes? :astonished:
 
-Luckily I know a little python and there is a great framework called scrapy to scrap things using python. I never used scrapy though. So let's do this and learn how to use scrapy.
+Luckily I know a little python and there is a great framework called scrapy to scrap things using python. I never used scrapy before though.
 
-First I headed to the scrapy docs and had a look at the tutorial. After spending some time there, I got a rough idea how it works. Let's learn by doing. Our target is to scrape all the `Accepted` submissions from LightOJ and to save them in their category folders. 
+First I headed to the scrapy docs and had a look at the [tutorial](https://doc.scrapy.org/en/latest/intro/tutorial.html). After spending some time there, I got a rough idea how it works. Time to learn by doing. Our target is to scrape all the `Accepted` submissions from LightOJ and to save them in their category folders. 
 
 Let's start a project with this command
 ```
@@ -55,13 +55,13 @@ class LojSpider(scrapy.Spider):
         pass
 ```
 
-The `start_urls` are the urls from where the spider start crawling. Scrapy first gets these pages for us and calls our `parse` method with the returned content so that we can do whatever we want with the content. For now the `parse` method does nothing.
+The `start_urls` are the urls from where the spider start crawling. Scrapy first gets these pages for us and calls the `parse` method with the returned content so that we can do whatever we want with them. For now the `parse` method does nothing.
 
-Here we are trying to get all our submissions. So we'll want our first page to be `http://lightoj.com/volume_usersubmissions.php` as this is where the submissions are listed. But we'll have to be logged in to access this page. If we try to access this page LightOJ will redirect us to the page `login_main.php` to log in. So we'll start right from this page. Let's set the `start_urls`
+Here we are trying to get all our submissions. So we'll want our first page to be `http://lightoj.com/volume_usersubmissions.php` as this is where the submissions are listed. But we have to be logged in to access this page. If we try to access this page LightOJ will redirect us to the page `login_main.php` to log in. So we'll start right from this page. Let's set the `start_urls`
 ```python
 start_urls = ['http://lightoj.com/login_main.php']
 ```
-Now we'll define what we want to do in our first page in the `parse` method of our spider. We'll submit the login form in this page. Scrapy has support for login forms. For that we have to know the login form field names. We can obtain this using firefox developer tools. So we'll go to lightoj.com and log out if necessary. Then right click the form and select `Inspect Element`.  That's how the form looks in the firefox dev tool.
+Now we'll define what we want to do in our first page in the `parse` method of our spider. We'll submit the login form in this page. Scrapy has support for login forms. For that we have to know the login form field names. We can obtain this using firefox developer tools. So we'll go to lightoj.com and log out if necessary. Then right click the form and select `Inspect Element`.  That's how the form looks in firefox dev tool.
 
 ![form in dev tool](/images/lojform-firefox.png)
 
@@ -70,7 +70,7 @@ Now we know the fields are `myuserid` and `mypassword`. Now we can submit them. 
 USER = 'sjsakib.bd@gmail.com'
 PASS = os.environ['LOJPASS']
 ```
-I've replaced password with environment variable here. It's not necessary. Plain password could be put.
+(I've replaced password with environment variable here. It's not necessary. Plain password could be put.)
 
 Now let's update the `parse` method
 ```python
@@ -105,15 +105,15 @@ This page doesn't contain all the submissions either. We'll have to submit anoth
 def my_sub(self, response):
     return scrapy.FormRequest.from_response(
         response,
-        formdata={'user_password': '<pass-here>'},
+        formdata={'user_password': self.settings.get('PASS')},
         callback=self.parse_allsub
     )
 ```
 
-In the response page we'll have all the submissions. We'll define the method `parse_all_sub` to process them. All the submissions in that page is in a table with id `mytable3`. In every row there's link to each submission in a `<th>` tag. The verdict is in a `<div>` tag in the last cell. We'll use `response.css` to select them and see if the verdict is `Accepted`. Then we'll follow the submission link to get our submission.
+In the response page we'll have all the submissions. We'll define the method `parse_all_sub` to process them. All the submissions in that page is in a table with id `mytable3`. In every row there's link to a submission in a `<th>` tag. The verdict is in a `<div>` tag in the last cell. We'll use `response.css` to select them and see if the verdict is `Accepted`. Then we'll follow the submission link to get our code.
 ```python
 def parse_allsub(self, response):
-    trs = response.css('#mytable3 tr')  # Getting all the rows
+    trs = response.css('#mytable3 tr')  # getting all the rows
     for tr in trs[1:]:  # skipping header row
         ver = tr.css('div::text').extract_first().strip()  # getting verdict text
         a = tr.css('a')[0]  # link to the submission
@@ -128,7 +128,7 @@ Now we've got a problem. The default html parser of scrapy treats our code as ht
 code = response.css('textarea::text').extract_first()
 print(code) 
 ```
-We get only `#include `. Where's the rest of the code? What's happening here? :worried: Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy :neutral_face:
+We get only `#include `. Where's the rest of code? What's happening here? :worried: Notice that next word in the code after this is `<bits/stdc++.h>`. Scrapy is treating this as a html tag. So we get only `#include ` as text. We can't extract our code with the html parse that comes with scrapy :neutral_face:
 
 We'll use `BeautifulSoup` instead. (Which I've used earlier) It's easy, we'll import `BeautifulSoup` and create our soup with `response.text`. Then we can extract all our informations correctly.
 
@@ -192,7 +192,7 @@ def parse_forum(self, response):
     }
 ```
 
-We've done a lot of coding. Time  to unleash :fire: our spider and see how it rocks. [Here's](https://gist.github.com/sjsakib/b11a18ffcd74e65915ff3d38f01b01fd) how the code looks so far.
+A lot of coding. Time  to unleash :fire: our spider and see how much it works. [Here's](https://gist.github.com/sjsakib/b11a18ffcd74e65915ff3d38f01b01fd) how the code looks so far.
 ```
 $ scrapy crawl loj -o data.json
 ```
@@ -205,4 +205,4 @@ If we open the `data.josn` file, we'll see that our spider has done its work :gr
 {"tags": ["Beginners Problems", "Number Theory"], "pid": "1045"}
 ....
 ```
-It has saved the codes along with other informations and also which problems have what tags. It's cool, no? But we can't upload these to github and show all our coolness. They need to be saved in organized folders. We'll do so in the next part.
+It has saved the codes along with other informations and also which problems have what tags. It's cool, no? It's all the data we need. But we can't upload these to github and show all our coolness. They need to be saved in organized folders. We'll do so in the next part.

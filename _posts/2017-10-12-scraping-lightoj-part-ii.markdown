@@ -1,6 +1,6 @@
 ---
 title:  "Scraping Light OJ: Part II"
-date:   2017-10-11 22:34:49
+date:   2017-10-11
 categories: [hacking]
 tags: [scraping]
 
@@ -19,7 +19,7 @@ ITEM_PIPELINES = {
 
 What is the number 300? Well, when we have multiple pipelines, the pipeline with smaller number gets to precess data first. For now we have only one pipeline, we could put any number. 
 
-Now let's open the `pipelines.py` file and add our stuffs in there. First we have to implement a method `process_item`. Whenever our spider yields a item, the item will pass to this method so that we can process it as we like.
+Now let's open the `pipelines.py` file and add our stuffs in there. First we have to implement a method `process_item`. Whenever our spider yields a item, the item will pass to this method so that it can be process as we like.
 
 If the item is a submission information we'll append it to the `data.json` file. And if it is a tag information we'll add it to a `dict` property of our pipeline to use later when saving files. We'll also add a `open_spider` method to add that dict property to our spider
 ```python
@@ -98,7 +98,7 @@ def save_to_folder(self, tag, lang, name, code, subid, spider):
 ```
 Now our spider should save all the codes properly. But before finishing, we'll do one more thing. What happens when we run our spider again? It'll scrape all the submissions again. Instead we could make it scrape only the new submissions. To do that, we have to save to a file which submissions have been already scraped.
 
-We'll add a list property `done` in our spider when it's created. We'll add the `subid` to this when we scrape a submission. And when our spider closes we'll save them to a file. We'll have to add a `__init__` method to our spider.
+We'll add a list property `done` in our spider when it's created. We'll add the `subid` to this when we scrape a submission. And when our spider closes we'll save them to a file. We have to add a `__init__` method to our spider.
 ```python
 def __init__(self, *args, **kwargs):
     super(LojSpider, self).__init__(*args, **kwargs)
@@ -129,7 +129,7 @@ And now we're done. Let's run our spider. This time we don't need the `-o data.j
 ```
 $ scrapy crawl loj
 ```
-After the process finises, head to the `codes` folder and check out the codes! Now these can be uploaded and showed off :stuck_out_tongue_winking_eye:
+After the process finishes, head to the `codes` folder and check out the codes! Now these can be uploaded and showed off :stuck_out_tongue_winking_eye:
 
 I got mine like this...
 ```
@@ -260,7 +260,7 @@ I got mine like this...
 └── Weighted Bipartite Matching, Hungarian Algorithm
     └── LightOJ 1198 - Karate Competition.cpp
 ```
-(This kind of cool tree can be generated using [tree.](https://linux.die.net/man/1/tree))
+(This kind of cool trees can be generated using [tree.](https://linux.die.net/man/1/tree))
 
 The full code along with my LightOJ solutions are available [here.](https://github.com/sjsakib/lightoj-solutions) If you want to use it
 1. Install `scrapy` and `bs4`
