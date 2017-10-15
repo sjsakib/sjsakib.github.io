@@ -2,7 +2,7 @@
 title:  "Scraping Light OJ: Part II"
 date:   2017-10-11
 categories: [hacking]
-tags: [scraping]
+tags: [scraping python cp lightoj]
 
 showprev: yes
 fb: yes

@@ -2,7 +2,7 @@
 title:  "Git Hooks with Python"
 date:   2017-10-15
 categories: [hacking]
-tags: [git git-hooks cp]
+tags: [git git-hooks python cp]
 
 fb: yes
 ---
