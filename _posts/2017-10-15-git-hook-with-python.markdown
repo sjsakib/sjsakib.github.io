@@ -1,5 +1,5 @@
 ---
-title:  "Git Hooks with Python"
+title:  "Git Hook with Python"
 date:   2017-10-15
 categories: [hacking]
 tags: [git git-hooks python cp]
@@ -13,7 +13,7 @@ So when I started the [psbook](https://github.com/sjsakib/psbook/) project, to s
 
 Then yesterday I thought, what if I could just put my notes in comments and let github build the pages? I searched for some kind of [jekyll](https://jekyllrb.com/) (which github uses to build the sites) plugins to for that. Failing I got to know about git hooks.
 
-Git client side hooks are simple scripts that do things when events (like commit, push) happen in a repo. They can be used to accomplish a wide range of tasks like deploying, testing and what not? What I'm trying to accomplish here is pretty simple. So why not write a hook of mine?
+Git client side hooks are simple scripts that do things when events (like commit, push) happen in a repo. They can be used to accomplish a wide range of tasks like deploying, testing and what not? What I'm trying to accomplish here is pretty simple. So why don't I write a hook of mine?
 
 Git hook scripts are located in `.git/hooks` folder of a repo. Git creates a couple of scripts by default for different events. What I'm trying to accomplish is, whenever I commit a change, the script should collect comments from the changed files and build `.md` files out of them. So it have to be a `pre-commit` hook. I'll put my code in a file named `pre-commit` in the `.git/hooks` directory and git will execute it every time I commit. Note that hooks can't have extensions. Even though I'll write my script in python, it have to be named exactly `pre-commit`, no `.py` extension.
 
