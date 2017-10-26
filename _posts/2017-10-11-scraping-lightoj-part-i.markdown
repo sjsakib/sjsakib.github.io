@@ -2,7 +2,7 @@
 title:  "Scraping Light OJ: Part I"
 date:   2017-10-11
 categories: [small-hacks]
-tags: [scraping python cp lightoj]
+tags: [scraping, python, cp, lightoj]
 
 fb: yes
 shownext: yes
